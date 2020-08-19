@@ -33,8 +33,8 @@ func computePoint(fractal Fractal, point *Point, iters int, results chan PointRe
 }
 
 func Compute(fractal Fractal, bounds Rect, precision float64, iters int, results chan PointResult) (numPoints int) {
-	for x := bounds.BottomLeft.X; x <= bounds.TopRight.X; x += precision {
-		for y := bounds.BottomLeft.Y; y <= bounds.TopRight.Y; y += precision {
+	for x := bounds.BottomLeft.X; x < bounds.TopRight.X; x += precision {
+		for y := bounds.BottomLeft.Y; y < bounds.TopRight.Y; y += precision {
 			go computePoint(fractal, &Point{x, y}, iters, results)
 			numPoints++
 		}

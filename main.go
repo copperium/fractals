@@ -4,20 +4,34 @@ import (
 	"fmt"
 	"github.com/copperium/fractals/fraclib"
 	"github.com/copperium/fractals/mandelbrot"
+	"github.com/copperium/fractals/viz"
+	"image/png"
+	"os"
 )
 
 func main() {
-	fractal := mandelbrot.Mandelbrot{Threshold: 20}
-	results := make(chan fraclib.PointResult)
-	numPoints := fraclib.Compute(
-		&fractal,
-		fraclib.Rect{
-			BottomLeft: &fraclib.Point{X: -10, Y: -10},
-			TopRight:   &fraclib.Point{X: 10, Y: 10},
-		}, 0.01, 10, results,
-	)
-	for i := 0; i < numPoints; i++ {
-		pr := <-results
-		fmt.Printf("%v: %v\n", pr.Point, pr.Result)
+	fractal := mandelbrot.Mandelbrot{Threshold: 1000}
+	iters := 100
+	fracviz := viz.FractalImage{
+		Model:   viz.ThresholdModel{Threshold: iters},
+		Fractal: &fractal,
+		FractalBounds: fraclib.Rect{
+			BottomLeft: &fraclib.Point{X: -2, Y: -1},
+			TopRight:   &fraclib.Point{X: 1, Y: 1},
+		},
+		Iters:     iters,
+		PixelSize: 0.001,
+	}
+
+	file, err := os.Create("mandelbrot.png")
+	if err != nil {
+		_ = fmt.Errorf(err.Error())
+		return
+	}
+	defer file.Close()
+
+	err = png.Encode(file, &fracviz)
+	if err != nil {
+		_ = fmt.Errorf(err.Error())
 	}
 }

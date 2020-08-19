@@ -11,12 +11,12 @@ type Mandelbrot struct {
 
 func (m *Mandelbrot) At(point *fraclib.Point, iters int) int {
 	c := point.Complex()
-	var z complex128
+	var z complex128 = 0
 	for i := 1; i <= iters; i++ {
 		z = z*z + c
 		if cmplx.Abs(z) > m.Threshold {
 			return i
 		}
 	}
-	return -1
+	return 0
 }
