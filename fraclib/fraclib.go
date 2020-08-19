@@ -1,12 +1,22 @@
 package fraclib
 
+import "fmt"
+
 type Point struct {
 	X, Y float64
 }
 
+func (p *Point) Complex() complex128 {
+	return complex(p.X, p.Y)
+}
+
+func (p *Point) String() string {
+	return fmt.Sprintf("(%g, %g)", p.X, p.Y)
+}
+
 type Rect struct {
-	TopLeft     *Point
-	BottomRight *Point
+	BottomLeft *Point
+	TopRight   *Point
 }
 
 type PointResult struct {
@@ -15,17 +25,19 @@ type PointResult struct {
 }
 
 type Fractal interface {
-	At(*Point) int
+	At(point *Point, iters int) int
 }
 
-func computePoint(fractal Fractal, point *Point, results chan PointResult) {
-	results <- PointResult{point, fractal.At(point)}
+func computePoint(fractal Fractal, point *Point, iters int, results chan PointResult) {
+	results <- PointResult{point, fractal.At(point, iters)}
 }
 
-func Compute(fractal Fractal, bounds Rect, precision float64, results chan PointResult) {
-	for x := bounds.TopLeft.X; x <= bounds.BottomRight.X; x += precision {
-		for y := bounds.TopLeft.Y; y <= bounds.BottomRight.Y; y += precision {
-			go computePoint(fractal, &Point{x, y}, results)
+func Compute(fractal Fractal, bounds Rect, precision float64, iters int, results chan PointResult) (numPoints int) {
+	for x := bounds.BottomLeft.X; x <= bounds.TopRight.X; x += precision {
+		for y := bounds.BottomLeft.Y; y <= bounds.TopRight.Y; y += precision {
+			go computePoint(fractal, &Point{x, y}, iters, results)
+			numPoints++
 		}
 	}
+	return numPoints
 }
