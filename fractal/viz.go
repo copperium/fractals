@@ -10,16 +10,16 @@ type ColorModel interface {
 	ColorModel() color.Model
 }
 
-type ThresholdModel struct {
+type ThresholdColorModel struct {
 	Threshold int
 }
 
 // greyscale for now
-func (m ThresholdModel) Color(result int) color.Color {
+func (m ThresholdColorModel) Color(result int) color.Color {
 	return color.Gray16{Y: uint16(result * (1 << 16) / m.Threshold)}
 }
 
-func (m ThresholdModel) ColorModel() color.Model {
+func (m ThresholdColorModel) ColorModel() color.Model {
 	return color.Gray16Model
 }
 

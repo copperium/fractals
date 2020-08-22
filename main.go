@@ -11,7 +11,7 @@ func main() {
 	frac := fractal.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
 	iters := 100
 	fracviz := fractal.Image{
-		Model:   fractal.ThresholdModel{Threshold: iters},
+		Model:   fractal.ThresholdColorModel{Threshold: iters},
 		Fractal: &frac,
 		FractalBounds: fractal.Rect{
 			BottomLeft: &fractal.Point{X: -2, Y: -2},
