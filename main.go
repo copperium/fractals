@@ -3,17 +3,15 @@ package main
 import (
 	"fmt"
 	"github.com/copperium/fractals/fraclib"
-	"github.com/copperium/fractals/julia"
-	"github.com/copperium/fractals/viz"
 	"image/png"
 	"os"
 )
 
 func main() {
-	fractal := julia.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
+	fractal := fraclib.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
 	iters := 100
-	fracviz := viz.FractalImage{
-		Model:   viz.ThresholdModel{Threshold: iters},
+	fracviz := fraclib.FractalImage{
+		Model:   fraclib.ThresholdModel{Threshold: iters},
 		Fractal: &fractal,
 		FractalBounds: fraclib.Rect{
 			BottomLeft: &fraclib.Point{X: -2, Y: -2},

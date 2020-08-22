@@ -1,7 +1,6 @@
-package viz
+package fraclib
 
 import (
-	"github.com/copperium/fractals/fraclib"
 	"image"
 	"image/color"
 )
@@ -26,21 +25,21 @@ func (m ThresholdModel) ColorModel() color.Model {
 
 type FractalImage struct {
 	Model         FractalColorModel
-	Fractal       fraclib.Fractal
-	FractalBounds fraclib.Rect
+	Fractal       Fractal
+	FractalBounds Rect
 	Iters         int
 	// numeric size per pixel
 	PixelSize float64
 }
 
-func (i *FractalImage) ImageToFractalPoint(x, y int) fraclib.Point {
-	return fraclib.Point{
+func (i *FractalImage) ImageToFractalPoint(x, y int) Point {
+	return Point{
 		X: i.FractalBounds.BottomLeft.X + float64(x)*i.PixelSize,
 		Y: i.FractalBounds.BottomLeft.Y + float64(y)*i.PixelSize,
 	}
 }
 
-func (i *FractalImage) FractalToImagePoint(p *fraclib.Point) (x, y int) {
+func (i *FractalImage) FractalToImagePoint(p *Point) (x, y int) {
 	x = int((p.X - i.FractalBounds.BottomLeft.X) / i.PixelSize)
 	y = int((p.Y - i.FractalBounds.BottomLeft.Y) / i.PixelSize)
 	return
@@ -64,8 +63,8 @@ func (i *FractalImage) At(x, y int) color.Color {
 
 func (i *FractalImage) ToCachedImage() image.Image {
 	img := image.NewRGBA(i.Bounds())
-	results := make(chan fraclib.PointResult)
-	numResults := fraclib.Compute(i.Fractal, i.FractalBounds, i.PixelSize, i.Iters, results)
+	results := make(chan PointResult)
+	numResults := Compute(i.Fractal, i.FractalBounds, i.PixelSize, i.Iters, results)
 	for j := 0; j < numResults; j++ {
 		result := <-results
 		x, y := i.FractalToImagePoint(result.Point)
