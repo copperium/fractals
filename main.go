@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/copperium/fractals/fraclib"
+	"github.com/copperium/fractals/fractal"
 	"image/png"
 	"os"
 )
 
 func main() {
-	fractal := fraclib.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
+	frac := fractal.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
 	iters := 100
-	fracviz := fraclib.FractalImage{
-		Model:   fraclib.ThresholdModel{Threshold: iters},
-		Fractal: &fractal,
-		FractalBounds: fraclib.Rect{
-			BottomLeft: &fraclib.Point{X: -2, Y: -2},
-			TopRight:   &fraclib.Point{X: 2, Y: 2},
+	fracviz := fractal.Image{
+		Model:   fractal.ThresholdModel{Threshold: iters},
+		Fractal: &frac,
+		FractalBounds: fractal.Rect{
+			BottomLeft: &fractal.Point{X: -2, Y: -2},
+			TopRight:   &fractal.Point{X: 2, Y: 2},
 		},
 		Iters:     iters,
 		PixelSize: 0.001,

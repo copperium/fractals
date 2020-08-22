@@ -1,11 +1,11 @@
-package fraclib
+package fractal
 
 import (
 	"image"
 	"image/color"
 )
 
-type FractalColorModel interface {
+type ColorModel interface {
 	Color(int) color.Color
 	ColorModel() color.Model
 }
@@ -23,8 +23,8 @@ func (m ThresholdModel) ColorModel() color.Model {
 	return color.Gray16Model
 }
 
-type FractalImage struct {
-	Model         FractalColorModel
+type Image struct {
+	Model         ColorModel
 	Fractal       Fractal
 	FractalBounds Rect
 	Iters         int
@@ -32,36 +32,36 @@ type FractalImage struct {
 	PixelSize float64
 }
 
-func (i *FractalImage) ImageToFractalPoint(x, y int) Point {
+func (i *Image) ImageToFractalPoint(x, y int) Point {
 	return Point{
 		X: i.FractalBounds.BottomLeft.X + float64(x)*i.PixelSize,
 		Y: i.FractalBounds.BottomLeft.Y + float64(y)*i.PixelSize,
 	}
 }
 
-func (i *FractalImage) FractalToImagePoint(p *Point) (x, y int) {
+func (i *Image) FractalToImagePoint(p *Point) (x, y int) {
 	x = int((p.X - i.FractalBounds.BottomLeft.X) / i.PixelSize)
 	y = int((p.Y - i.FractalBounds.BottomLeft.Y) / i.PixelSize)
 	return
 }
 
-func (i *FractalImage) ColorModel() color.Model {
+func (i *Image) ColorModel() color.Model {
 	return i.Model.ColorModel()
 }
 
-func (i *FractalImage) Bounds() image.Rectangle {
+func (i *Image) Bounds() image.Rectangle {
 	w := i.FractalBounds.TopRight.X - i.FractalBounds.BottomLeft.X
 	h := i.FractalBounds.TopRight.Y - i.FractalBounds.BottomLeft.Y
 	return image.Rect(0, 0, int(w/i.PixelSize), int(h/i.PixelSize))
 }
 
-func (i *FractalImage) At(x, y int) color.Color {
+func (i *Image) At(x, y int) color.Color {
 	point := i.ImageToFractalPoint(x, y)
 	result := i.Fractal.At(&point, i.Iters)
 	return i.Model.Color(result)
 }
 
-func (i *FractalImage) ToCachedImage() image.Image {
+func (i *Image) ToCachedImage() image.Image {
 	img := image.NewRGBA(i.Bounds())
 	results := make(chan PointResult)
 	numResults := Compute(i.Fractal, i.FractalBounds, i.PixelSize, i.Iters, results)
