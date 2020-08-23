@@ -1,19 +1,31 @@
 package fractal
 
 import (
-	"math/cmplx"
+	"github.com/copperium/fractals/bigcmplx"
+	"math/big"
 )
 
 type Julia struct {
-	Threshold float64
-	Param     complex128
+	squareThreshold big.Rat
+	param           *bigcmplx.Complex
 }
 
-func (m *Julia) At(point *Point, iters int) int {
+func NewJulia(threshold *big.Rat, param *bigcmplx.Complex) *Julia {
+	julia := &Julia{param: param}
+	julia.squareThreshold.Mul(threshold, threshold)
+	return julia
+}
+
+func (j *Julia) At(point *Point, iters int) int {
+	// ...exponential growth in Int complexity...
+	// what to do?
 	z := point.Complex()
+	var sqAbs bigcmplx.Complex
 	for i := 1; i <= iters; i++ {
-		z = z*z + m.Param
-		if cmplx.Abs(z) > m.Threshold {
+		z.Mul(z, z)
+		z.Add(z, j.param)
+		sqAbs.SqAbs(z)
+		if z.Real().Cmp(&j.squareThreshold) > 0 {
 			return i
 		}
 	}

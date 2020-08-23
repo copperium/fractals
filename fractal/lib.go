@@ -1,17 +1,25 @@
 package fractal
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/copperium/fractals/bigcmplx"
+	"math/big"
+)
 
 type Point struct {
-	X, Y float64
+	X, Y big.Rat
 }
 
-func (p *Point) Complex() complex128 {
-	return complex(p.X, p.Y)
+func NewPoint(x, y *big.Rat) *Point {
+	return &Point{X: *x, Y: *y}
+}
+
+func (p *Point) Complex() *bigcmplx.Complex {
+	return bigcmplx.NewComplex(&p.X, &p.Y)
 }
 
 func (p *Point) String() string {
-	return fmt.Sprintf("(%g, %g)", p.X, p.Y)
+	return fmt.Sprintf("(%s, %s)", p.X.String(), p.Y.String())
 }
 
 type Rect struct {
@@ -32,9 +40,9 @@ func computePoint(fractal Fractal, point *Point, iters int, results chan PointRe
 	results <- PointResult{point, fractal.At(point, iters)}
 }
 
-func Compute(fractal Fractal, bounds Rect, precision float64, iters int, results chan PointResult) (numPoints int) {
-	for x := bounds.BottomLeft.X; x < bounds.TopRight.X; x += precision {
-		for y := bounds.BottomLeft.Y; y < bounds.TopRight.Y; y += precision {
+func Compute(fractal Fractal, bounds Rect, precision *big.Rat, iters int, results chan PointResult) (numPoints int) {
+	for x := bounds.BottomLeft.X; x.Cmp(&bounds.TopRight.X) < 0; x.Add(&x, precision) {
+		for y := bounds.BottomLeft.Y; y.Cmp(&bounds.TopRight.Y) < 0; y.Add(&y, precision) {
 			go computePoint(fractal, &Point{x, y}, iters, results)
 			numPoints++
 		}

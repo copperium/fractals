@@ -3,6 +3,7 @@ package fractal
 import (
 	"image"
 	"image/color"
+	"math/big"
 )
 
 type ColorModel interface {
@@ -29,20 +30,29 @@ type Image struct {
 	FractalBounds Rect
 	Iters         int
 	// numeric size per pixel
-	PixelSize float64
+	PixelSize *big.Rat
 }
 
-func (i *Image) ImageToFractalPoint(x, y int) Point {
-	return Point{
-		X: i.FractalBounds.BottomLeft.X + float64(x)*i.PixelSize,
-		Y: i.FractalBounds.BottomLeft.Y + float64(y)*i.PixelSize,
-	}
+// ImageToFractalPoint returns the exact point in the fractal corresponding to the image pixel.
+func (i *Image) ImageToFractalPoint(x, y int) *Point {
+	var p Point
+	p.X.Mul(i.PixelSize, big.NewRat(int64(x), 1))
+	p.X.Add(&p.X, &i.FractalBounds.BottomLeft.X)
+	p.Y.Mul(i.PixelSize, big.NewRat(int64(y), 1))
+	p.Y.Add(&p.Y, &i.FractalBounds.BottomLeft.Y)
+	return &p
 }
 
+// FractalToImagePoint returns the approximate image pixel corresponding to an exact fractal point.
 func (i *Image) FractalToImagePoint(p *Point) (x, y int) {
-	x = int((p.X - i.FractalBounds.BottomLeft.X) / i.PixelSize)
-	y = int((p.Y - i.FractalBounds.BottomLeft.Y) / i.PixelSize)
-	return
+	var rx, ry big.Rat
+	rx.Sub(&p.X, &i.FractalBounds.BottomLeft.X)
+	rx.Quo(&rx, i.PixelSize)
+	ry.Sub(&p.Y, &i.FractalBounds.BottomLeft.Y)
+	ry.Quo(&ry, i.PixelSize)
+	fx, _ := rx.Float32()
+	fy, _ := ry.Float32()
+	return int(fx), int(fy)
 }
 
 func (i *Image) ColorModel() color.Model {
@@ -50,14 +60,19 @@ func (i *Image) ColorModel() color.Model {
 }
 
 func (i *Image) Bounds() image.Rectangle {
-	w := i.FractalBounds.TopRight.X - i.FractalBounds.BottomLeft.X
-	h := i.FractalBounds.TopRight.Y - i.FractalBounds.BottomLeft.Y
-	return image.Rect(0, 0, int(w/i.PixelSize), int(h/i.PixelSize))
+	var w, h big.Rat
+	w.Sub(&i.FractalBounds.TopRight.X, &i.FractalBounds.BottomLeft.X)
+	h.Sub(&i.FractalBounds.TopRight.Y, &i.FractalBounds.BottomLeft.Y)
+	w.Quo(&w, i.PixelSize)
+	h.Quo(&h, i.PixelSize)
+	fw, _ := w.Float32()
+	fh, _ := h.Float32()
+	return image.Rect(0, 0, int(fw), int(fh))
 }
 
 func (i *Image) At(x, y int) color.Color {
 	point := i.ImageToFractalPoint(x, y)
-	result := i.Fractal.At(&point, i.Iters)
+	result := i.Fractal.At(point, i.Iters)
 	return i.Model.Color(result)
 }
 

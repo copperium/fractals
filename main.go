@@ -2,23 +2,25 @@ package main
 
 import (
 	"fmt"
+	"github.com/copperium/fractals/bigcmplx"
 	"github.com/copperium/fractals/fractal"
 	"image/png"
+	"math/big"
 	"os"
 )
 
 func main() {
-	frac := fractal.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
+	frac := fractal.NewJulia(big.NewRat(1000, 1), bigcmplx.NewComplex(big.NewRat(-8, 10), big.NewRat(156, 1000)))
 	iters := 100
 	fracviz := fractal.Image{
 		Model:   fractal.ThresholdColorModel{Threshold: iters},
-		Fractal: &frac,
+		Fractal: frac,
 		FractalBounds: fractal.Rect{
-			BottomLeft: &fractal.Point{X: -2, Y: -2},
-			TopRight:   &fractal.Point{X: 2, Y: 2},
+			BottomLeft: fractal.NewPoint(big.NewRat(-2, 1), big.NewRat(-2, 1)),
+			TopRight:   fractal.NewPoint(big.NewRat(2, 1), big.NewRat(2, 1)),
 		},
 		Iters:     iters,
-		PixelSize: 0.001,
+		PixelSize: big.NewRat(1, 1),
 	}
 
 	file, err := os.Create("julia.png")
