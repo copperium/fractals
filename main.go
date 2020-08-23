@@ -5,12 +5,13 @@ import (
 	"github.com/copperium/fractals/fractal"
 	"image/png"
 	"os"
+	"runtime"
 )
 
 func main() {
 	frac := fractal.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
 	iters := 100
-	fracviz := fractal.Image{
+	viz := fractal.Image{
 		Model:   fractal.ThresholdColorModel{Threshold: iters},
 		Fractal: &frac,
 		FractalBounds: fractal.Rect{
@@ -20,6 +21,8 @@ func main() {
 		Iters:     iters,
 		PixelSize: 0.001,
 	}
+	workers := runtime.NumCPU()
+	cached := viz.ToCachedImage(workers)
 
 	file, err := os.Create("julia.png")
 	if err != nil {
@@ -28,7 +31,7 @@ func main() {
 	}
 	defer file.Close()
 
-	err = png.Encode(file, &fracviz)
+	err = png.Encode(file, cached)
 	if err != nil {
 		_ = fmt.Errorf(err.Error())
 	}

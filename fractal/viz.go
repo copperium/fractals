@@ -61,12 +61,11 @@ func (i *Image) At(x, y int) color.Color {
 	return i.Model.Color(result)
 }
 
-func (i *Image) ToCachedImage() image.Image {
+func (i *Image) ToCachedImage(workers int) image.Image {
 	img := image.NewRGBA(i.Bounds())
-	results := make(chan PointResult)
-	numResults := Compute(i.Fractal, i.FractalBounds, i.PixelSize, i.Iters, results)
-	for j := 0; j < numResults; j++ {
-		result := <-results
+	results := make(chan *PointResult, 1000)
+	go Compute(i.Fractal, i.FractalBounds, i.PixelSize, i.Iters, workers, results)
+	for result := range results {
 		x, y := i.FractalToImagePoint(result.Point)
 		img.Set(x, y, i.Model.Color(result.Result))
 	}

@@ -1,6 +1,9 @@
 package fractal
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type Point struct {
 	X, Y float64
@@ -28,16 +31,27 @@ type Fractal interface {
 	At(point *Point, iters int) int
 }
 
-func computePoint(fractal Fractal, point *Point, iters int, results chan PointResult) {
-	results <- PointResult{point, fractal.At(point, iters)}
+func computePoint(fractal Fractal, iters int, points <-chan *Point, results chan<- *PointResult, wg *sync.WaitGroup) {
+	for point := range points {
+		result := &PointResult{point, fractal.At(point, iters)}
+		results <- result
+	}
+	wg.Done()
 }
 
-func Compute(fractal Fractal, bounds Rect, precision float64, iters int, results chan PointResult) (numPoints int) {
+func Compute(fractal Fractal, bounds Rect, precision float64, iters int, workers int, results chan<- *PointResult) {
+	var wg sync.WaitGroup
+	points := make(chan *Point, 1000)
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go computePoint(fractal, iters, points, results, &wg)
+	}
 	for x := bounds.BottomLeft.X; x < bounds.TopRight.X; x += precision {
 		for y := bounds.BottomLeft.Y; y < bounds.TopRight.Y; y += precision {
-			go computePoint(fractal, &Point{x, y}, iters, results)
-			numPoints++
+			points <- &Point{x, y}
 		}
 	}
-	return numPoints
+	close(points)
+	wg.Wait()
+	close(results)
 }
