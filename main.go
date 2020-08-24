@@ -27,13 +27,13 @@ func main() {
 
 	file, err := os.Create("julia.png")
 	if err != nil {
-		_ = fmt.Errorf(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 	defer file.Close()
 
 	err = png.Encode(file, cached)
 	if err != nil {
-		_ = fmt.Errorf(err.Error())
+		fmt.Println(err.Error())
 	}
 }
