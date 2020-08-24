@@ -73,12 +73,10 @@ func (m HueColorModel) Color(result int) color.Color {
 	fac := float64(result-1) / float64(m.Threshold-1) // range 0-1
 	h := math.Mod(hueRange*fac+m.MinHue, 1)           // range MinHue-MaxHue
 
-	var v float64
+	v := 1.0
 	if m.BoldMode {
 		v = (fac - 0.4) / 0.6
 		v *= v
-	} else {
-		v = fac/2 + 1
 	}
 
 	return hsv(h, 1, v)

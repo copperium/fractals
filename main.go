@@ -13,7 +13,7 @@ func main() {
 	//frac := fractal.Mandelbrot{Threshold: 1000}
 	iters := 100
 	viz := fractal.Image{
-		Model:   fractal.HueColorModel{Threshold: iters, HueRange: fractal.RedToGreen},
+		Model:   fractal.HueColorModel{Threshold: iters, HueRange: fractal.BlueToYellow},
 		Fractal: &frac,
 		FractalBounds: fractal.Rect{
 			BottomLeft: &fractal.Point{X: -2, Y: -2},
