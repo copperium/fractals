@@ -10,9 +10,10 @@ import (
 
 func main() {
 	frac := fractal.Julia{Threshold: 1000, Param: -0.8 + 0.156i}
+	//frac := fractal.Mandelbrot{Threshold: 1000}
 	iters := 100
 	viz := fractal.Image{
-		Model:   fractal.ThresholdColorModel{Threshold: iters},
+		Model:   fractal.HueColorModel{Threshold: iters, HueRange: fractal.RedToGreen},
 		Fractal: &frac,
 		FractalBounds: fractal.Rect{
 			BottomLeft: &fractal.Point{X: -2, Y: -2},

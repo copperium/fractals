@@ -10,19 +10,6 @@ type ColorModel interface {
 	ColorModel() color.Model
 }
 
-type ThresholdColorModel struct {
-	Threshold int
-}
-
-// greyscale for now
-func (m ThresholdColorModel) Color(result int) color.Color {
-	return color.Gray16{Y: uint16(result * (1 << 16) / m.Threshold)}
-}
-
-func (m ThresholdColorModel) ColorModel() color.Model {
-	return color.Gray16Model
-}
-
 type Image struct {
 	Model         ColorModel
 	Fractal       Fractal
