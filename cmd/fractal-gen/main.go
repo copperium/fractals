@@ -1,18 +1,17 @@
-package cli
+package main
 
 import (
 	"fmt"
-	"github.com/copperium/fractals/fractal"
+	"github.com/copperium/fractals/pkg/fractal"
 	"github.com/integrii/flaggy"
 	"image/png"
 	"os"
 	"runtime"
 )
 
-const subcommandName = "gen"
+const version = "0.0.0"
 
 var (
-	Subcommand  *flaggy.Subcommand
 	fractalType string
 	left        = 0.0
 	bottom      = 0.0
@@ -27,22 +26,24 @@ var (
 )
 
 func init() {
-	Subcommand = flaggy.NewSubcommand(subcommandName)
-	Subcommand.Description = "generate a fractal from the command line"
-	Subcommand.AddPositionalValue(&fractalType, "fractal", 1, true, "Type of fractal: mandelbrot or julia")
-	Subcommand.Float64(&left, "l", "left", "Left bound of image in fractal")
-	Subcommand.Float64(&bottom, "b", "bottom", "Bottom bound of image in fractal")
-	Subcommand.Float64(&width, "W", "width", "Width of image in fractal")
-	Subcommand.Float64(&height, "H", "height", "Height of image in fractal")
-	Subcommand.Float64(&threshold, "t", "threshold", "Fractal computation threshold")
-	Subcommand.String(&paramStr, "p", "param", "Complex parameter for Julia fractal")
-	Subcommand.Int(&iters, "i", "iters", "Number of fractal iterations")
-	Subcommand.Int(&imgWidth, "w", "image-width", "Width of image (pixels)")
-	Subcommand.String(&colors, "c", "colors", "Color scheme: blue-to-yellow, red-to-green, or greyscale")
-	Subcommand.Bool(&boldMode, "bm", "bold-mode", "Enable bold mode!")
+	flaggy.SetName("fractal-gen")
+	flaggy.SetDescription("generate a fractal from the command line")
+	flaggy.SetVersion(version)
+	flaggy.AddPositionalValue(&fractalType, "fractal", 1, true, "Type of fractal: mandelbrot or julia")
+	flaggy.Float64(&left, "l", "left", "Left bound of image in fractal")
+	flaggy.Float64(&bottom, "b", "bottom", "Bottom bound of image in fractal")
+	flaggy.Float64(&width, "W", "width", "Width of image in fractal")
+	flaggy.Float64(&height, "H", "height", "Height of image in fractal")
+	flaggy.Float64(&threshold, "t", "threshold", "Fractal computation threshold")
+	flaggy.String(&paramStr, "p", "param", "Complex parameter for Julia fractal")
+	flaggy.Int(&iters, "i", "iters", "Number of fractal iterations")
+	flaggy.Int(&imgWidth, "w", "image-width", "Width of image (pixels)")
+	flaggy.String(&colors, "c", "colors", "Color scheme: blue-to-yellow, red-to-green, or greyscale")
+	flaggy.Bool(&boldMode, "bm", "bold-mode", "Enable bold mode!")
+	flaggy.Parse()
 }
 
-func Exec() {
+func main() {
 	var frac fractal.Fractal
 	switch fractalType {
 	case "mandelbrot":
