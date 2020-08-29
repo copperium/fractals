@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/copperium/fractals/pkg/fractal"
-	"github.com/integrii/flaggy"
 	"image/png"
 	"os"
 	"runtime"
+
+	"github.com/copperium/fractals"
+	"github.com/integrii/flaggy"
 )
 
 const version = "0.0.0"
@@ -44,40 +45,40 @@ func init() {
 }
 
 func main() {
-	var frac fractal.Fractal
+	var frac fractals.Fractal
 	switch fractalType {
 	case "mandelbrot":
-		frac = &fractal.Mandelbrot{Threshold: threshold}
+		frac = &fractals.Mandelbrot{Threshold: threshold}
 	case "julia":
 		var realParam, imagParam float64
 		_, err := fmt.Sscanf(paramStr, "%f%fi", &realParam, &imagParam)
 		if err != nil {
 			flaggy.ShowHelpAndExit("Invalid complex format")
 		}
-		frac = &fractal.Julia{Threshold: threshold, Param: complex(realParam, imagParam)}
+		frac = &fractals.Julia{Threshold: threshold, Param: complex(realParam, imagParam)}
 	default:
 		flaggy.ShowHelpAndExit("Unknown fractal type: options are mandelbrot, julia")
 	}
 
-	bounds := fractal.Rect{
-		BottomLeft: &fractal.Point{X: left, Y: bottom},
-		TopRight:   &fractal.Point{X: left + width, Y: bottom + height},
+	bounds := fractals.Rect{
+		BottomLeft: &fractals.Point{X: left, Y: bottom},
+		TopRight:   &fractals.Point{X: left + width, Y: bottom + height},
 	}
 	pixelSize := (bounds.TopRight.X - bounds.BottomLeft.X) / float64(imgWidth)
 
-	var colorModel fractal.ColorModel
+	var colorModel fractals.ColorModel
 	switch colors {
 	case "greyscale":
-		colorModel = &fractal.GreyscaleColorModel{Threshold: iters}
+		colorModel = &fractals.GreyscaleColorModel{Threshold: iters}
 	case "blue-to-yellow":
-		colorModel = &fractal.HueColorModel{Threshold: iters, HueRange: fractal.BlueToYellow, BoldMode: boldMode}
+		colorModel = &fractals.HueColorModel{Threshold: iters, HueRange: fractals.BlueToYellow, BoldMode: boldMode}
 	case "red-to-green":
-		colorModel = &fractal.HueColorModel{Threshold: iters, HueRange: fractal.RedToGreen, BoldMode: boldMode}
+		colorModel = &fractals.HueColorModel{Threshold: iters, HueRange: fractals.RedToGreen, BoldMode: boldMode}
 	default:
 		flaggy.ShowHelpAndExit("Unknown colors: options are greyscale, blue-to-yellow, red-to-green")
 	}
 
-	viz := fractal.Image{
+	viz := fractals.Image{
 		Fractal:       frac,
 		Model:         colorModel,
 		FractalBounds: bounds,
@@ -88,6 +89,6 @@ func main() {
 
 	err := png.Encode(os.Stdout, cached)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err.Error())
 	}
 }

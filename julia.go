@@ -1,4 +1,4 @@
-package fractal
+package fractals
 
 import (
 	"math/cmplx"
